@@ -15,23 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls import url, include
-from tool.models import Calculator
-from rest_framework import routers, serializers, viewsets
+from tool import views
 
-class CalculatorSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Calculator
-        fields = ['result']
-
-class CalculatorViewSet(viewsets.ModelViewSet):
-    queryset = Calculator.objects.all()
-    serializer_class = CalculatorSerializer
-
-router = routers.DefaultRouter()
-router.register(r'calculator', CalculatorViewSet)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls'))
+    path('admin/', admin.site.urls),
+    path('request', views.Data_requestView.as_view()),
+    path('report', views.ReportView.as_view())
 ]
