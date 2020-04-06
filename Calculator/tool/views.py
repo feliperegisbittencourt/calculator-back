@@ -4,208 +4,222 @@ from rest_framework.response import Response
 
 from .models import *
 from .serializers import *
-from .functions import *
 
-class Data_requestView(generics.ListAPIView):
-    serializer_class = CalculatorSerializer
-    queryset = Calculator.objects.all()
-    
-    def get(self, request, *args, **kwargs):
-        resultado = self.request.data
-        try:
-            return Response( resultado, status=200)
-        except:
-            return Response("ERRO", status=500)
-
+#class API
 class ReportView(generics.ListCreateAPIView):
+    #serializer import
     serializer_class = CalculatorSerializer
+    #get all Calculator Model's fields
     queryset = Calculator.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        resultad = self.request.data
-        """ numbers = resultad['numbers']
-        operators = resultad['operators']
-        index = 0
-        while index < (len(numbers)-1):
-            if '*' in operators:
-                indexm = operators.index("*")
-                if '/' in operators:
-                    indexd = operators.index("/")
-                    if indexm < indexd:
-                        indexm = operators.index("*")
-                        result = numbers[indexm] * numbers[indexm + 1]
-                        del numbers[indexm + 1]
-                        numbers[indexm] = result
-                        del operators[indexm]
-                        indexd = operators.index("/")
-                        result = numbers[indexd] / numbers[indexd + 1]
-                        del numbers[indexd+1]
-                        numbers[indexd] = result
-                        del operators[indexd]
-                    else:
-                        indexd = operators.index("/")
-                        result = numbers[indexd] / numbers[indexd + 1]
-                        del numbers[indexd+1]
-                        numbers[indexd] = result
-                        del operators[indexd]
-                        indexm = operators.index("*")
-                        result = numbers[indexm] * numbers[indexm + 1]
-                        del numbers[indexm + 1]
-                        numbers[indexm] = result
-                        del operators[indexm]
-                else:
-                    indexm = operators.index("*")
-                    result = numbers[indexm] * numbers[indexm + 1]
-                    del numbers[indexm + 1]
-                    numbers[indexm] = result
-                    del operators[indexm]
-            elif '/' in operators:
-                indexd = operators.index("/")
-                result = numbers[indexd] / numbers[indexd + 1]
-                del numbers[indexd+1]
-                numbers[indexd] = result
-                del operators[indexd]
-            if '+' in operators:
-                indexp = operators.index("+")
-                if '-' in operators:
-                    indexs = operators.index("-")
-                    if indexp < indexs:
-                        indexp = operators.index("+")
-                        result = numbers[indexp] + numbers[indexp + 1]
-                        del numbers[indexp + 1]
-                        numbers[indexp] = result
-                        del operators[indexp]
-                        indexs = operators.index("-")
-                        result = numbers[indexs] - numbers[indexs + 1]
-                        del numbers[indexs+1]
-                        numbers[indexs] = result
-                        del operators[indexs]
-                    else:
-                        indexs = operators.index("-")
-                        result = numbers[indexs] - numbers[indexs + 1]
-                        del numbers[indexs + 1]
-                        numbers[indexs] = result
-                        del operators[indexs]
-                        indexp = operators.index("+")
-                        result = numbers[indexp] + numbers[indexp + 1]
-                        del numbers[indexp+1]
-                        numbers[indexp] = result
-                        del operators[indexp]
-                else:
-                    indexp = operators.index("+")
-                    result = numbers[indexp] + numbers[indexp + 1]
-                    del numbers[indexp + 1]
-                    numbers[indexp] = result
-                    del operators[indexp]
-            elif '-' in operators:
-                indexs = operators.index("-")
-                result = numbers[indexs] - numbers[indexs + 1]
-                del numbers[indexs + 1]
-                numbers[indexs] = result
-                del operators[indexs]
-                                
-            
-            
-            resultado = numbers[0]
-            index = len(numbers)
-         """
-
-        print(resultad)
-        
-        return Response({"result": resultad})
-
+    #create post function
     def post(self, request, *args, **kwargs):
-        resultad = 0
-        resultad = self.request.data
+        api_data = 0
+        #get api body data
+        api_data = self.request.data
         
-        numbers = resultad['numbers']
-        operators = resultad['operators']
+        #get field numbers of api body
+        numbers = api_data['numbers']
+        #get field operators of api body
+        operators = api_data['operators']
+        
         index = 0
-        while index < (len(numbers)-1):
+        finalResult = 0
+        #go through the array
+        while index < (len(numbers)):
+            #check if has operator * in array operators
             if '*' in operators:
+                #get the *'s index
                 indexm = operators.index("*")
+                #check if has operator / in array operators
                 if '/' in operators:
+                    #get the /'s index
                     indexd = operators.index("/")
+                    #compare index of multiply and divide to do first that first write
                     if indexm < indexd:
+                        #get the *'s index
                         indexm = operators.index("*")
-                        result = int(numbers[indexm]) * int(numbers[indexm + 1])
+                        #validate if last item on view, isn't a operator
+                        if indexm + 1 > len(numbers):
+                            numbers[indexm + 1] = 0
+                        #validate if last item on view, isn't a operator
+                        if indexd +1 > len(numbers):
+                            numbers[indexd + 1] = 0
+                        #do the multiply operation
+                        result = float(numbers[indexm]) * float(numbers[indexm + 1])
+                        #del the second number of operation
                         del numbers[indexm + 1]
+                        #set the result in first number of operation place
                         numbers[indexm] = result
+                        #del the operator
                         del operators[indexm]
+                        #get the /'s index
                         indexd = operators.index("/")
-                        result = int(numbers[indexd]) / int(numbers[indexd + 1])
+                        #validade if was a division per zero
+                        if numbers[indexd + 1] == '0':
+                            result = 0
+                        else:
+                            result = float(numbers[indexd]) / float(numbers[indexd + 1])
+                        #del the second number of operation
                         del numbers[indexd+1]
+                        #set the result in first number of operation place
                         numbers[indexd] = result
+                        #del the operator
                         del operators[indexd]
+                        #go to intial of array
+                        indexd = index
+                        indexm = index
                     else:
+                        #get the /'s index
                         indexd = operators.index("/")
-                        result = numbers[indexd] / numbers[indexd + 1]
+                        #validade if was a division per zero
+                        if numbers[indexd + 1] == '0':
+                            result = 0
+                        else:
+                            result = float(numbers[indexd]) / float(numbers[indexd + 1])
+                        #del the second number of operation
                         del numbers[indexd+1]
+                        #set the result in first number of operation place
                         numbers[indexd] = result
+                        #del the operator
                         del operators[indexd]
                         indexm = operators.index("*")
-                        result = numbers[indexm] * numbers[indexm + 1]
+                        result = float(numbers[indexm]) * float(numbers[indexm + 1])
+                        #del the second number of operation
                         del numbers[indexm + 1]
+                        #set the result in first number of operation place
                         numbers[indexm] = result
+                        #del the operator
                         del operators[indexm]
+                        index = 0
+                        #go to intial of array
+                        indexd = index
+                        indexm = index
                 else:
+                    #get the *'s index
                     indexm = operators.index("*")
-                    result = int(numbers[indexm]) * int(numbers[indexm + 1])
+                    result = float(numbers[indexm]) * float(numbers[indexm + 1])
+                    #del the second number of operation
                     del numbers[indexm + 1]
+                    #set the result in first number of operation place
                     numbers[indexm] = result
+                    #del the operator
                     del operators[indexm]
+                    #go to intial of array
+                    index = 0
+                    indexm = index
+            #check if has operator / in array operators and no has operator *
             elif '/' in operators:
+                #get the /'s index
                 indexd = operators.index("/")
-                result = numbers[indexd] / numbers[indexd + 1]
-                del numbers[indexd+1]
-                numbers[indexd] = result
-                del operators[indexd]
-            if '+' in operators:
-                indexp = operators.index("+")
-                if '-' in operators:
-                    indexs = operators.index("-")
-                    if indexp < indexs:
-                        indexp = operators.index("+")
-                        result = numbers[indexp] + numbers[indexp + 1]
-                        del numbers[indexp + 1]
-                        numbers[indexp] = result
-                        del operators[indexp]
-                        indexs = operators.index("-")
-                        result = numbers[indexs] - numbers[indexs + 1]
-                        del numbers[indexs+1]
-                        numbers[indexs] = result
-                        del operators[indexs]
-                    else:
-                        indexs = operators.index("-")
-                        result = numbers[indexs] - numbers[indexs + 1]
-                        del numbers[indexs + 1]
-                        numbers[indexs] = result
-                        del operators[indexs]
-                        indexp = operators.index("+")
-                        result = numbers[indexp] + numbers[indexp + 1]
-                        del numbers[indexp+1]
-                        numbers[indexp] = result
-                        del operators[indexp]
+
+                #validate if last item on view, isn't a operator
+                if indexd +1 > len(numbers):
+                    numbers[indexd + 1] = 0
+                #validade if was a division per zero
+                if numbers[indexd + 1] == '0':
+                    result = 0
                 else:
+                    result = float(numbers[indexd]) / float(numbers[indexd + 1])
+                #del the second number of operation
+                del numbers[indexd+1]
+                #set the result in first number of operation place
+                numbers[indexd] = result
+                #del the operator
+                del operators[indexd]
+                #go to intial of array
+                index = 0
+                indexd = index
+            #check if has operator + in array operators
+            if '+' in operators:
+                #get the +'s index
+                indexp = operators.index("+")
+                #check if has operator - in array operators
+                if '-' in operators:
+                    #get the -'s index
+                    indexs = operators.index("-")
+                    #compare index of addition and subtration to do first that first write
+                    if indexp < indexs:
+                        #get the +'s index
+                        indexp = operators.index("+")
+                        result = float(numbers[indexp]) + float(numbers[indexp + 1])
+                        #del the second number of operation
+                        del numbers[indexp + 1]
+                        #set the result in first number of operation place
+                        numbers[indexp] = result
+                        #del the operator
+                        del operators[indexp]
+                        #get the -'s index
+                        indexs = operators.index("-")
+                        result = float(numbers[indexs]) - float(numbers[indexs + 1])
+                        #del the second number of operation
+                        del numbers[indexs+1]
+                        #set the result in first number of operation place
+                        numbers[indexs] = result
+                        #del the operator
+                        del operators[indexs]
+                        #go to intial of array
+                        index = 0
+                        indexp = index
+                        indexs = index
+                    else:
+                        #get the -'s index
+                        indexs = operators.index("-")
+                        result = float(numbers[indexs]) - float(numbers[indexs + 1])
+                        #del the second number of operation
+                        del numbers[indexs + 1]
+                        #set the result in first number of operation place
+                        numbers[indexs] = result
+                        #del the operator
+                        del operators[indexs]
+                        #get the +'s index
+                        indexp = operators.index("+")
+                        result = float(numbers[indexp]) + float(numbers[indexp + 1])
+                        #del the second number of operation
+                        del numbers[indexp+1]
+                        #set the result in first number of operation place
+                        numbers[indexp] = result
+                        #del the operator
+                        del operators[indexp]
+                        #go to intial of array
+                        index = 0
+                        indexp = index
+                        indexs = index
+                else:
+                    #get the +'s index
                     indexp = operators.index("+")
-                    result = numbers[indexp] + numbers[indexp + 1]
+                    result = float(numbers[indexp]) + float(numbers[indexp + 1])
+                    #del the second number of operation
                     del numbers[indexp + 1]
+                    #set the result in first number of operation place
                     numbers[indexp] = result
+                    #del the operator
                     del operators[indexp]
-            elif '-' in operators:
+                    #go to intial of array
+                    index = 0
+                    indexp = index
+            #check if has operator - in array operators
+            if '-' in operators:
+                #get the -'s index
                 indexs = operators.index("-")
-                result = numbers[indexs] - numbers[indexs + 1]
+                result = float(numbers[indexs]) - float(numbers[indexs + 1])
+                #del the second number of operation
                 del numbers[indexs + 1]
+                #set the result in first number of operation place
                 numbers[indexs] = result
+                #del the operator
                 del operators[indexs]
+                #go to intial of array
+                index = 0
+                indexs = index
                                 
             
-            
-            resultado = numbers[0]
-            index = len(numbers)
-        print(resultado)
-        
-        return Response({"result": resultado})
+            #set finalResult that the first number of numbers
+            finalResult = numbers[0]
+            #update index
+            index += 1
+        #return the final result
+        return Response({"result": finalResult})
         #try:
         #    tag_pi = self.request.data
         #except:

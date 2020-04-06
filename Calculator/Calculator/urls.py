@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
+#import the file views from app tool
+
 from tool import views
 
 
+#create a url to api report
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('request', views.Data_requestView.as_view()),
     path('report', views.ReportView.as_view())
 ]
